@@ -147,7 +147,7 @@ const TransactionsManager = () => {
         categoryId: '',
         amount: '',
         description: '',
-        date: new Date().toISOString().split('T')[0].toISOString().split('T')[0]
+        date: new Date().toISOString().split('T')[0]
       });
     }
     setOpenDialog(true);
