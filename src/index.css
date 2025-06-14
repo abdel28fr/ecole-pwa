@@ -1,0 +1,179 @@
+/* إعدادات عامة للتطبيق مع دعم RTL */
+:root {
+  font-family: 'Cairo', 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.6;
+  font-weight: 400;
+  direction: rtl;
+  text-align: right;
+
+  color-scheme: light;
+  color: rgba(0, 0, 0, 0.87);
+  background-color: #f5f5f5;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  direction: rtl;
+  text-align: right;
+  font-family: 'Cairo', sans-serif;
+  background-color: #f5f5f5;
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+  direction: rtl;
+}
+
+/* تحسينات للنصوص العربية */
+.arabic-text {
+  font-family: 'Cairo', sans-serif;
+  direction: rtl;
+  text-align: right;
+}
+
+/* تحسينات للجداول */
+.MuiTableCell-root {
+  text-align: right !important;
+  direction: rtl;
+}
+
+.MuiTableCell-head {
+  font-weight: 600;
+  background-color: #f8f9fa;
+}
+
+/* تحسينات للنماذج */
+.MuiTextField-root {
+  direction: rtl;
+}
+
+.MuiInputBase-input {
+  text-align: right;
+  direction: rtl;
+}
+
+/* تحسينات للأزرار */
+.MuiButton-root {
+  font-family: 'Cairo', sans-serif;
+}
+
+/* تحسينات للبطاقات */
+.MuiCard-root {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+}
+
+/* تحسينات للتنقل */
+.MuiTabs-root {
+  direction: rtl;
+}
+
+.MuiTab-root {
+  font-family: 'Cairo', sans-serif;
+  font-weight: 500;
+}
+
+/* تحسينات للحوارات */
+.MuiDialog-paper {
+  direction: rtl;
+}
+
+.MuiDialogTitle-root {
+  font-family: 'Cairo', sans-serif;
+  font-weight: 600;
+}
+
+/* تحسينات للقوائم */
+.MuiList-root {
+  direction: rtl;
+}
+
+.MuiListItemText-primary {
+  font-family: 'Cairo', sans-serif;
+  font-weight: 500;
+}
+
+/* تحسينات للرقائق */
+.MuiChip-root {
+  font-family: 'Cairo', sans-serif;
+}
+
+/* تحسينات للتنبيهات */
+.MuiAlert-root {
+  direction: rtl;
+  text-align: right;
+}
+
+/* تحسينات للشريط العلوي */
+.MuiAppBar-root {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.MuiToolbar-root {
+  direction: rtl;
+}
+
+/* تحسينات للطباعة */
+@media print {
+  body {
+    background-color: white;
+    color: black;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+}
+
+/* تحسينات للشاشات الصغيرة */
+@media (max-width: 768px) {
+  .MuiContainer-root {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  .MuiCard-root {
+    margin-bottom: 16px;
+  }
+
+  .MuiTable-root {
+    font-size: 0.875rem;
+  }
+}
+
+/* تحسينات للشاشات الكبيرة */
+@media (min-width: 1200px) {
+  .MuiContainer-root {
+    max-width: 1400px;
+  }
+}
+
+/* تأثيرات الحركة */
+.fade-in {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

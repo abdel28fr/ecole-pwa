@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مولد أيقونات PWA</title>
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            direction: rtl;
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #1976d2 0%, #42a5f5 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .icon {
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(135deg, #1976d2 0%, #42a5f5 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border: 3px solid white;
+        }
+        .icon-text {
+            font-size: 48px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .instructions {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px;
+            max-width: 600px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎓 أكاديمية نجم بلوس</h1>
+    
+    <div class="icon">
+        <div class="icon-text">🎓<br>نجم<br>بلوس</div>
+    </div>
+    
+    <div class="instructions">
+        <h3>تعليمات إنشاء الأيقونات:</h3>
+        <p>1. افتح هذه الصفحة في المتصفح</p>
+        <p>2. اضغط F12 لفتح أدوات المطور</p>
+        <p>3. انقر بزر الماوس الأيمن على الأيقونة أعلاه</p>
+        <p>4. اختر "فحص العنصر" أو "Inspect Element"</p>
+        <p>5. انقر بزر الماوس الأيمن على العنصر في الكود</p>
+        <p>6. اختر "التقاط لقطة شاشة للعقدة" أو "Capture node screenshot"</p>
+        <p>7. احفظ الصورة بالأحجام المطلوبة:</p>
+        <ul style="text-align: right;">
+            <li>72x72 → icon-72x72.png</li>
+            <li>96x96 → icon-96x96.png</li>
+            <li>128x128 → icon-128x128.png</li>
+            <li>144x144 → icon-144x144.png</li>
+            <li>152x152 → icon-152x152.png</li>
+            <li>192x192 → icon-192x192.png</li>
+            <li>384x384 → icon-384x384.png</li>
+            <li>512x512 → icon-512x512.png</li>
+        </ul>
+    </div>
+    
+    <p>أو يمكنك استخدام أدوات أونلاين مثل:</p>
+    <p>• PWA Builder Image Generator</p>
+    <p>• Favicon.io</p>
+    <p>• RealFaviconGenerator</p>
+</body>
+</html>

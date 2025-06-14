@@ -1,0 +1,38 @@
+<svg width="192" height="192" viewBox="0 0 192 192" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- خلفية متدرجة -->
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1976d2;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#42a5f5;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- خلفية دائرية -->
+  <circle cx="96" cy="96" r="88" fill="url(#grad1)" stroke="white" stroke-width="8"/>
+  
+  <!-- أيقونة المدرسة -->
+  <g transform="translate(96,96)">
+    <!-- المبنى الرئيسي -->
+    <rect x="-40" y="-20" width="80" height="50" fill="white" rx="4"/>
+    
+    <!-- السقف -->
+    <polygon points="-45,-25 0,-45 45,-25" fill="white"/>
+    
+    <!-- النوافذ -->
+    <rect x="-30" y="-10" width="12" height="12" fill="#1976d2" rx="2"/>
+    <rect x="-10" y="-10" width="12" height="12" fill="#1976d2" rx="2"/>
+    <rect x="10" y="-10" width="12" height="12" fill="#1976d2" rx="2"/>
+    
+    <!-- الباب -->
+    <rect x="-8" y="5" width="16" height="25" fill="#1976d2" rx="2"/>
+    <circle cx="4" cy="15" r="1.5" fill="white"/>
+    
+    <!-- النجمة -->
+    <g transform="translate(0,-35)">
+      <polygon points="0,-8 2,-2 8,-2 3,2 5,8 0,4 -5,8 -3,2 -8,-2 -2,-2" fill="#FFD700"/>
+    </g>
+    
+    <!-- النص -->
+    <text x="0" y="45" text-anchor="middle" fill="white" font-family="Cairo, sans-serif" font-size="12" font-weight="bold">نجم بلوس</text>
+  </g>
+</svg>
