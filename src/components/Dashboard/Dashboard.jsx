@@ -29,10 +29,13 @@ import {
   BarChart as BarChartIcon,
   AccessTime as AccessTimeIcon,
   Groups as GroupsIcon,
-  MenuBook as MenuBookIcon
+  MenuBook as MenuBookIcon,
+  AccountBalance as FinanceIcon,
+  TrendingDown as ExpenseIcon
 } from '@mui/icons-material';
 
 import { studentsAPI, classesAPI, subjectsAPI, gradesAPI, paymentsAPI, settingsAPI } from '../../data/storage';
+import { financeTransactionsAPI } from '../../data/financeStorage';
 
 const StatCard = ({ title, value, icon, color, subtitle, onClick }) => (
   <Card
@@ -171,6 +174,10 @@ const Dashboard = ({ onNavigate }) => {
   const handleGradesClick = () => {
     if (onNavigate) onNavigate(4); // التبويب الخامس (النقاط)
   };
+
+  const handleFinanceClick = () => {
+    if (onNavigate) onNavigate(7); // التبويب الثامن (الإدارة المالية)
+  };
   const [stats, setStats] = useState({
     totalStudents: 0,
     totalClasses: 0,
@@ -187,6 +194,12 @@ const Dashboard = ({ onNavigate }) => {
     totalAmount: 0,
     paidAmount: 0,
     unpaidAmount: 0
+  });
+  const [financeStats, setFinanceStats] = useState({
+    totalIncome: 0,
+    totalExpenses: 0,
+    netProfit: 0,
+    totalTransactions: 0
   });
   const [settings, setSettings] = useState({});
 
@@ -255,6 +268,22 @@ const Dashboard = ({ onNavigate }) => {
       totalAmount,
       paidAmount,
       unpaidAmount
+    });
+
+    // إحصائيات الإدارة المالية للشهر الحالي
+    const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).toISOString().split('T')[0];
+    const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).toISOString().split('T')[0];
+
+    const totalIncome = financeTransactionsAPI.getTotalIncome(startOfMonth, endOfMonth);
+    const totalExpenses = financeTransactionsAPI.getTotalExpenses(startOfMonth, endOfMonth);
+    const netProfit = totalIncome - totalExpenses;
+    const allTransactions = financeTransactionsAPI.getByDateRange(startOfMonth, endOfMonth);
+
+    setFinanceStats({
+      totalIncome,
+      totalExpenses,
+      netProfit,
+      totalTransactions: allTransactions.length
     });
 
     setSettings(appSettings);
@@ -490,6 +519,189 @@ const Dashboard = ({ onNavigate }) => {
                   fontWeight: 500
                 }}>
                   من إجمالي التسديدات
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
+      </Paper>
+
+      {/* ملخص الإدارة المالية للشهر الحالي */}
+      <Paper sx={{
+        p: 3,
+        mb: 3,
+        background: (theme) => theme.palette.mode === 'dark'
+          ? 'linear-gradient(135deg, #2d1b69 0%, #11998e 100%)'
+          : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        color: 'white',
+        borderRadius: 2,
+        boxShadow: (theme) => theme.palette.mode === 'dark'
+          ? '0 8px 32px rgba(0,0,0,0.3)'
+          : '0 8px 32px rgba(102,126,234,0.2)'
+      }}>
+        <Box display="flex" alignItems="center" mb={2}>
+          <FinanceIcon sx={{ fontSize: 32, mr: 2, color: 'white' }} />
+          <Typography variant="h5" component="h2" sx={{ color: 'white', fontWeight: 600 }}>
+            ملخص الإدارة المالية - {getMonthName(new Date().getMonth() + 1)} {new Date().getFullYear()}
+          </Typography>
+        </Box>
+
+        <Grid container spacing={3}>
+          <Grid item xs={12} sm={6} md={3}>
+            <Card
+              onClick={handleFinanceClick}
+              sx={{
+                background: (theme) => theme.palette.mode === 'dark'
+                  ? 'linear-gradient(135deg, #134e5e 0%, #71b280 100%)'
+                  : 'linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%)',
+                backdropFilter: 'blur(10px)',
+                border: 'none',
+                borderRadius: 3,
+                color: 'white',
+                boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                cursor: 'pointer',
+                '&:hover': {
+                  transform: 'translateY(-8px) scale(1.02)',
+                  boxShadow: '0 16px 40px rgba(0,0,0,0.25)',
+                  background: (theme) => theme.palette.mode === 'dark'
+                    ? 'linear-gradient(135deg, #0f3c47 0%, #5a9367 100%)'
+                    : 'linear-gradient(135deg, #4a9025 0%, #8fd19e 100%)'
+                }
+              }}
+            >
+              <CardContent sx={{ textAlign: 'center', p: 3 }}>
+                <TrendingUpIcon sx={{ fontSize: 48, mb: 2, color: 'white', opacity: 0.9 }} />
+                <Typography variant="h3" component="div" fontWeight="bold" sx={{ color: 'white', mb: 1 }}>
+                  {financeStats.totalIncome.toLocaleString()}
+                </Typography>
+                <Typography variant="h6" sx={{ color: 'white', mb: 1, fontWeight: 500 }}>
+                  إجمالي الإيرادات
+                </Typography>
+                <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.9)', fontWeight: 500 }}>
+                  دج
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+
+          <Grid item xs={12} sm={6} md={3}>
+            <Card
+              onClick={handleFinanceClick}
+              sx={{
+                background: (theme) => theme.palette.mode === 'dark'
+                  ? 'linear-gradient(135deg, #b92b27 0%, #8e2de2 100%)'
+                  : 'linear-gradient(135deg, #ff6b6b 0%, #ffa726 100%)',
+                backdropFilter: 'blur(10px)',
+                border: 'none',
+                borderRadius: 3,
+                color: 'white',
+                boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                cursor: 'pointer',
+                '&:hover': {
+                  transform: 'translateY(-8px) scale(1.02)',
+                  boxShadow: '0 16px 40px rgba(0,0,0,0.25)',
+                  background: (theme) => theme.palette.mode === 'dark'
+                    ? 'linear-gradient(135deg, #9a1f1c 0%, #7a25b8 100%)'
+                    : 'linear-gradient(135deg, #e55a5a 0%, #e8941f 100%)'
+                }
+              }}
+            >
+              <CardContent sx={{ textAlign: 'center', p: 3 }}>
+                <ExpenseIcon sx={{ fontSize: 48, mb: 2, color: 'white', opacity: 0.9 }} />
+                <Typography variant="h3" component="div" fontWeight="bold" sx={{ color: 'white', mb: 1 }}>
+                  {financeStats.totalExpenses.toLocaleString()}
+                </Typography>
+                <Typography variant="h6" sx={{ color: 'white', mb: 1, fontWeight: 500 }}>
+                  إجمالي المصروفات
+                </Typography>
+                <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.9)', fontWeight: 500 }}>
+                  دج
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+
+          <Grid item xs={12} sm={6} md={3}>
+            <Card
+              onClick={handleFinanceClick}
+              sx={{
+                background: financeStats.netProfit >= 0
+                  ? (theme) => theme.palette.mode === 'dark'
+                    ? 'linear-gradient(135deg, #1565c0 0%, #42a5f5 100%)'
+                    : 'linear-gradient(135deg, #2196f3 0%, #64b5f6 100%)'
+                  : (theme) => theme.palette.mode === 'dark'
+                    ? 'linear-gradient(135deg, #d32f2f 0%, #f57c00 100%)'
+                    : 'linear-gradient(135deg, #ff5722 0%, #ff9800 100%)',
+                backdropFilter: 'blur(10px)',
+                border: 'none',
+                borderRadius: 3,
+                color: 'white',
+                boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                cursor: 'pointer',
+                '&:hover': {
+                  transform: 'translateY(-8px) scale(1.02)',
+                  boxShadow: '0 16px 40px rgba(0,0,0,0.25)',
+                  background: financeStats.netProfit >= 0
+                    ? (theme) => theme.palette.mode === 'dark'
+                      ? 'linear-gradient(135deg, #0d47a1 0%, #1976d2 100%)'
+                      : 'linear-gradient(135deg, #1976d2 0%, #42a5f5 100%)'
+                    : (theme) => theme.palette.mode === 'dark'
+                      ? 'linear-gradient(135deg, #b71c1c 0%, #e65100 100%)'
+                      : 'linear-gradient(135deg, #d84315 0%, #f57c00 100%)'
+                }
+              }}
+            >
+              <CardContent sx={{ textAlign: 'center', p: 3 }}>
+                <FinanceIcon sx={{ fontSize: 48, mb: 2, color: 'white', opacity: 0.9 }} />
+                <Typography variant="h3" component="div" fontWeight="bold" sx={{ color: 'white', mb: 1 }}>
+                  {financeStats.netProfit.toLocaleString()}
+                </Typography>
+                <Typography variant="h6" sx={{ color: 'white', mb: 1, fontWeight: 500 }}>
+                  صافي الربح
+                </Typography>
+                <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.9)', fontWeight: 500 }}>
+                  {financeStats.netProfit >= 0 ? 'ربح' : 'خسارة'} - دج
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+
+          <Grid item xs={12} sm={6} md={3}>
+            <Card
+              onClick={handleFinanceClick}
+              sx={{
+                background: (theme) => theme.palette.mode === 'dark'
+                  ? 'linear-gradient(135deg, #4a148c 0%, #7b1fa2 100%)'
+                  : 'linear-gradient(135deg, #9c27b0 0%, #e1bee7 100%)',
+                backdropFilter: 'blur(10px)',
+                border: 'none',
+                borderRadius: 3,
+                color: 'white',
+                boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                cursor: 'pointer',
+                '&:hover': {
+                  transform: 'translateY(-8px) scale(1.02)',
+                  boxShadow: '0 16px 40px rgba(0,0,0,0.25)',
+                  background: (theme) => theme.palette.mode === 'dark'
+                    ? 'linear-gradient(135deg, #38006b 0%, #6a1b9a 100%)'
+                    : 'linear-gradient(135deg, #8e24aa 0%, #ce93d8 100%)'
+                }
+              }}
+            >
+              <CardContent sx={{ textAlign: 'center', p: 3 }}>
+                <MoneyIcon sx={{ fontSize: 48, mb: 2, color: 'white', opacity: 0.9 }} />
+                <Typography variant="h3" component="div" fontWeight="bold" sx={{ color: 'white', mb: 1 }}>
+                  {financeStats.totalTransactions}
+                </Typography>
+                <Typography variant="h6" sx={{ color: 'white', mb: 1, fontWeight: 500 }}>
+                  إجمالي المعاملات
+                </Typography>
+                <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.9)', fontWeight: 500 }}>
+                  معاملة مالية
                 </Typography>
               </CardContent>
             </Card>
