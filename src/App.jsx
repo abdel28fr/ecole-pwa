@@ -22,6 +22,7 @@ import {
   Grade as GradeIcon,
   Assessment as ReportIcon,
   Payment as PaymentIcon,
+  AccountBalance as FinanceIcon,
   Settings as SettingsIcon,
   NightlightRound as MoonIcon,
   WbSunny as SunIcon
@@ -35,6 +36,7 @@ import SubjectsManager from './components/Subjects/SubjectsManager.jsx';
 import GradesManager from './components/Grades/GradesManager.jsx';
 import ReportsManager from './components/Reports/ReportsManager.jsx';
 import PaymentsManager from './components/Payments/PaymentsManager.jsx';
+import FinanceManager from './components/Finance/FinanceManager.jsx';
 import SettingsManager from './components/Settings/SettingsManager.jsx';
 import PWAButton from './components/PWA/PWAButton.jsx';
 
@@ -139,6 +141,7 @@ function App() {
     { label: 'النقاط', icon: <GradeIcon />, component: <GradesManager /> },
     { label: 'التقارير', icon: <ReportIcon />, component: <ReportsManager /> },
     { label: 'التسديدات', icon: <PaymentIcon />, component: <PaymentsManager /> },
+    { label: 'الإدارة المالية', icon: <FinanceIcon />, component: <FinanceManager /> },
     { label: 'الإعدادات', icon: <SettingsIcon />, component: <SettingsManager darkMode={darkMode} setDarkMode={setDarkMode} /> },
   ];
 
