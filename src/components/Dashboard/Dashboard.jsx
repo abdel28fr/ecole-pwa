@@ -265,7 +265,21 @@ const Dashboard = ({ onNavigate }) => {
       {/* ترحيب */}
       <Paper sx={{ p: 3, mb: 3, background: 'linear-gradient(135deg, #1976d2 0%, #42a5f5 100%)', color: 'white' }}>
         <Box display="flex" alignItems="center">
-          <SchoolIcon sx={{ fontSize: 48, mr: 2 }} />
+          {settings.logo ? (
+            <Box
+              component="img"
+              src={settings.logo}
+              alt="لوجو الأكاديمية"
+              sx={{
+                width: 94,
+                height: 94,
+                mr: 4,
+                objectFit: 'contain'
+              }}
+            />
+          ) : (
+            <SchoolIcon sx={{ fontSize: 48, mr: 14 }} />
+          )}
           <Box>
             <Typography variant="h4" component="h1" gutterBottom>
               مرحباً بك في {settings.academyName || 'أكاديمية نجم بلوس'}
