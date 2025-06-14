@@ -132,7 +132,7 @@ function App() {
   };
 
   const tabs = [
-    { label: 'لوحة التحكم', icon: <SchoolIcon />, component: <Dashboard onNavigate={setCurrentTab} /> },
+    { label: 'الرئيسية', icon: <SchoolIcon />, component: <Dashboard onNavigate={setCurrentTab} /> },
     { label: 'التلاميذ', icon: <PeopleIcon />, component: <StudentsManager /> },
     { label: 'الأقسام', icon: <ClassIcon />, component: <ClassesManager /> },
     { label: 'المواد', icon: <SubjectIcon />, component: <SubjectsManager /> },
