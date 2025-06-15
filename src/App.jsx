@@ -183,7 +183,7 @@ function App() {
             {/* زر الإعدادات */}
             <IconButton
               color="inherit"
-              onClick={() => setCurrentTab(7)} // الانتقال لتبويب الإعدادات
+              onClick={() => setCurrentTab(8)} // الانتقال لتبويب الإعدادات
               sx={{ ml: 1 }}
               title="الإعدادات"
             >
