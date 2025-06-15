@@ -241,13 +241,19 @@ const ReportsManager = () => {
 
     // للتقارير الأخرى (تلميذ، شهادة)
     const reportElement = document.createElement('div');
+
+    // تحديد أبعاد مختلفة للشهادة (أفقي) والتقارير الأخرى (عمودي)
+    const isLandscape = type === 'certificate';
+    const width = isLandscape ? '297mm' : '210mm';
+    const height = isLandscape ? '210mm' : '297mm';
+
     reportElement.style.cssText = `
       position: absolute;
       top: -9999px;
       left: -9999px;
-      width: 210mm;
-      min-height: 297mm;
-      max-height: 297mm;
+      width: ${width};
+      min-height: ${height};
+      max-height: ${height};
       padding: 15mm;
       background: white;
       font-family: 'Cairo', sans-serif;
@@ -269,20 +275,34 @@ const ReportsManager = () => {
     document.body.appendChild(reportElement);
 
     try {
+      // إعدادات مختلفة للشهادة (أفقي) والتقارير الأخرى (عمودي)
+      const canvasWidth = isLandscape ? 1123 : 794;
+      const canvasHeight = isLandscape ? 794 : 1123;
+
       const canvas = await html2canvas(reportElement, {
         scale: 2,
         useCORS: true,
         allowTaint: true,
         backgroundColor: '#ffffff',
-        width: 794,
-        height: 1123
+        width: canvasWidth,
+        height: canvasHeight
       });
 
-      const doc = new jsPDF('p', 'mm', 'a4');
+      // إنشاء PDF بالتوجه المناسب
+      const orientation = isLandscape ? 'l' : 'p'; // l = landscape, p = portrait
+      const doc = new jsPDF(orientation, 'mm', 'a4');
       const imgData = canvas.toDataURL('image/png');
 
-      doc.addImage(imgData, 'PNG', 0, 0, 210, 297);
-      doc.save(`${type}_report_${Date.now()}.pdf`);
+      // أبعاد الصفحة حسب التوجه
+      const pdfWidth = isLandscape ? 297 : 210;
+      const pdfHeight = isLandscape ? 210 : 297;
+
+      doc.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+
+      // اسم الملف حسب النوع
+      const fileName = type === 'certificate' ? 'شهادة_نجاح' :
+                      type === 'student' ? 'كشف_نقاط' : 'تقرير_قسم';
+      doc.save(`${fileName}_${Date.now()}.pdf`);
     } catch (error) {
       console.error('خطأ في إنشاء PDF:', error);
       alert('حدث خطأ في إنشاء التقرير. يرجى المحاولة مرة أخرى.');
@@ -918,34 +938,37 @@ const ReportsManager = () => {
                              generalAverage >= 6 ? '#ff9800' : '#2196f3';
 
     return `
-      <div style="text-align: center; padding: 40px; border: 5px solid #1976d2; border-radius: 20px; background: linear-gradient(135deg, #f8f9fa 0%, #e3f2fd 100%); min-height: 600px; position: relative;">
+      <div style="width: 100%; height: 100%; padding: 20px; border: 5px solid #1976d2; border-radius: 20px; background: linear-gradient(135deg, #f8f9fa 0%, #e3f2fd 100%); box-sizing: border-box; position: relative; display: flex; flex-direction: column;">
 
         <!-- الزخرفة العلوية -->
-        <div style="position: absolute; top: 20px; left: 50%; transform: translateX(-50%); width: 80%; height: 3px; background: linear-gradient(90deg, #1976d2, #42a5f5, #1976d2); border-radius: 2px;"></div>
+        <div style="position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: 90%; height: 3px; background: linear-gradient(90deg, #1976d2, #42a5f5, #1976d2); border-radius: 2px;"></div>
 
         <!-- رأس الشهادة مع اللوجو وصورة التلميذ -->
-        <div style="margin-bottom: 40px; position: relative; min-height: 120px; padding-top: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-top: 10px;">
           <!-- اللوجو في الجهة اليمنى -->
-          <div style="position: absolute; top: 0; right: 0;">
+          <div style="flex-shrink: 0;">
             ${settings.logo ?
-              `<img src="${settings.logo}" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 4px solid #1976d2; box-shadow: 0 4px 12px rgba(0,0,0,0.2);" alt="لوجو الأكاديمية" />` :
-              `<div style="width: 100px; height: 100px; background: #1976d2; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 28px; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">🎓</div>`
+              `<img src="${settings.logo}" style="width: 70px; height: 70px; border-radius: 50%; object-fit: cover; border: 3px solid #1976d2; box-shadow: 0 3px 8px rgba(0,0,0,0.2);" alt="لوجو الأكاديمية" />` :
+              `<div style="width: 70px; height: 70px; background: #1976d2; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 20px; font-weight: bold; box-shadow: 0 3px 8px rgba(0,0,0,0.2);">🎓</div>`
             }
           </div>
 
           <!-- معلومات الأكاديمية في المنتصف -->
-          <div style="text-align: center; padding: 0 120px;">
-            <h1 style="color: #1976d2; margin: 0; font-size: 32px; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.1);">
+          <div style="text-align: center; flex: 1;">
+            <h1 style="color: #1976d2; margin: 0; font-size: 24px; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.1);">
               ${settings.academyName || 'أكاديمية نجم بلوس'}
             </h1>
-            <p style="color: #666; margin: 8px 0; font-size: 16px; font-weight: 500;">للتعليم والتكوين</p>
+            <p style="color: #666; margin: 5px 0; font-size: 12px; font-weight: 500;">للتعليم والتكوين</p>
+            <h2 style="color: #1976d2; margin: 10px 0; font-size: 20px; font-weight: bold;">
+              🏆 شهادة نجاح 🏆
+            </h2>
           </div>
 
           <!-- صورة التلميذ في الجهة اليسرى -->
-          <div style="position: absolute; top: 0; left: 0;">
+          <div style="flex-shrink: 0;">
             ${student.photo ?
-              `<img src="${student.photo}" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 4px solid ${appreciationColor}; box-shadow: 0 4px 12px rgba(0,0,0,0.2);" alt="صورة التلميذ" />` :
-              `<div style="width: 100px; height: 100px; border-radius: 50%; background: ${appreciationColor}; display: flex; align-items: center; justify-content: center; color: white; font-size: 28px; font-weight: bold; border: 4px solid ${appreciationColor}; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">${student.fullName?.charAt(0) || 'ت'}</div>`
+              `<img src="${student.photo}" style="width: 70px; height: 70px; border-radius: 50%; object-fit: cover; border: 3px solid ${appreciationColor}; box-shadow: 0 3px 8px rgba(0,0,0,0.2);" alt="صورة التلميذ" />` :
+              `<div style="width: 70px; height: 70px; border-radius: 50%; background: ${appreciationColor}; display: flex; align-items: center; justify-content: center; color: white; font-size: 20px; font-weight: bold; border: 3px solid ${appreciationColor}; box-shadow: 0 3px 8px rgba(0,0,0,0.2);">${student.fullName?.charAt(0) || 'ت'}</div>`
             }
           </div>
         </div>
@@ -958,61 +981,94 @@ const ReportsManager = () => {
           <div style="width: 200px; height: 4px; background: linear-gradient(90deg, #1976d2, #42a5f5, #1976d2); margin: 15px auto; border-radius: 2px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);"></div>
         </div>
 
-        <!-- نص الشهادة -->
-        <div style="margin: 40px 0; line-height: 2;">
-          <p style="font-size: 18px; color: #333; margin: 15px 0;">
-            تشهد إدارة الأكاديمية بأن التلميذ(ة):
-          </p>
+        <!-- المحتوى الرئيسي -->
+        <div style="flex: 1; display: flex; align-items: stretch; gap: 20px; margin: 10px 0;">
 
-          <div style="background: white; border: 2px solid ${appreciationColor}; border-radius: 15px; padding: 20px; margin: 20px 0; box-shadow: 0 4px 8px rgba(0,0,0,0.1); text-align: center;">
-            <h3 style="color: #1976d2; font-size: 24px; margin: 0; font-weight: bold;">
-              ${student.fullName}
-            </h3>
-            <p style="color: #666; margin: 5px 0; font-size: 16px;">
-              ${studentClass?.name || 'القسم غير محدد'}
+          <!-- القسم الأيسر: النص والمعلومات -->
+          <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; text-align: center; padding: 15px;">
+            <p style="font-size: 14px; color: #333; margin-bottom: 10px; line-height: 1.5;">
+              تشهد إدارة <strong style="color: #1976d2;">${settings.academyName || 'أكاديمية نجم بلوس'}</strong>
+            </p>
+            <p style="font-size: 14px; color: #333; margin-bottom: 15px; line-height: 1.5;">
+              بأن التلميذ(ة):
+            </p>
+
+            <div style="background: white; border: 2px solid ${appreciationColor}; border-radius: 12px; padding: 15px; margin: 10px 0; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+              <h3 style="color: #1976d2; font-size: 18px; margin: 0 0 5px 0; font-weight: bold;">
+                ${student.fullName}
+              </h3>
+              <p style="color: #666; margin: 0; font-size: 14px;">
+                ${studentClass?.name || 'القسم غير محدد'}
+              </p>
+            </div>
+
+            <p style="font-size: 13px; color: #333; margin: 10px 0;">
+              قد نجح(ت) في امتحانات نهاية السنة الدراسية
+            </p>
+            <p style="font-size: 12px; color: #666; margin: 5px 0;">
+              للسنة الدراسية: <strong style="color: #1976d2;">${settings.currentYear || '2024-2025'}</strong>
             </p>
           </div>
 
-          <p style="font-size: 18px; color: #333; margin: 20px 0;">
-            قد نجح(ت) في امتحانات نهاية السنة الدراسية
-          </p>
+          <!-- القسم الأيمن: النتيجة والتقدير -->
+          <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; text-align: center; padding: 15px;">
+            <div style="background: white; padding: 20px; border-radius: 15px; box-shadow: 0 6px 20px rgba(0,0,0,0.1); border: 3px solid ${appreciationColor}; height: 100%; display: flex; flex-direction: column; justify-content: center;">
 
-          <div style="background: ${appreciationColor}20; border: 2px solid ${appreciationColor}; border-radius: 15px; padding: 25px; margin: 25px 0;">
-            <p style="font-size: 20px; color: ${appreciationColor}; margin: 10px 0; font-weight: bold;">
-              بمعدل عام قدره: ${generalAverage}/10
-            </p>
-            <p style="font-size: 22px; color: ${appreciationColor}; margin: 10px 0; font-weight: bold;">
-              ${appreciationWithPrefix}
-            </p>
+              <!-- دائرة النتيجة -->
+              <div style="background: ${appreciationColor}; color: white; padding: 15px; border-radius: 50%; display: inline-block; margin: 0 auto 15px; box-shadow: 0 6px 15px ${appreciationColor}40; width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; flex-direction: column;">
+                <span style="font-size: 20px; font-weight: bold; margin-bottom: 2px;">${generalAverage}</span>
+                <span style="font-size: 10px; opacity: 0.9;">من 10</span>
+              </div>
+
+              <!-- التقدير -->
+              <h3 style="color: ${appreciationColor}; margin: 10px 0; font-size: 16px; font-weight: bold;">
+                ${appreciationWithPrefix}
+              </h3>
+
+              <!-- رسالة التهنئة -->
+              <div style="background: ${appreciationColor}15; padding: 10px; border-radius: 8px; margin-top: 10px; border: 1px solid ${appreciationColor}30;">
+                <p style="color: ${appreciationColor}; font-size: 12px; font-weight: bold; margin: 0;">
+                  🎉 مبروك النجاح 🎉
+                </p>
+                <p style="color: #666; font-size: 10px; margin: 3px 0 0 0;">
+                  نتمنى لك مزيداً من التفوق
+                </p>
+              </div>
+            </div>
           </div>
-
-          <p style="font-size: 16px; color: #666; margin: 20px 0;">
-            السنة الدراسية: ${settings.currentYear || '2024-2025'}
-          </p>
         </div>
 
         <!-- التوقيعات والتاريخ -->
-        <div style="margin-top: 60px; display: flex; justify-content: space-between; align-items: end;">
-          <div style="text-align: center;">
-            <p style="margin: 0; font-size: 14px; color: #666;">التاريخ:</p>
-            <p style="margin: 5px 0; font-weight: bold; color: #333;">
+        <div style="margin-top: 15px; display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; background: rgba(255,255,255,0.7); border-radius: 10px; border: 1px solid #e0e0e0;">
+
+          <!-- التاريخ -->
+          <div style="text-align: center; flex: 1;">
+            <p style="margin: 0; font-size: 11px; color: #666; font-weight: bold;">التاريخ:</p>
+            <p style="margin: 3px 0; font-weight: bold; color: #1976d2; font-size: 12px;">
               ${new Date().toLocaleDateString('ar-DZ')}
             </p>
           </div>
 
-          <div style="text-align: center;">
-            <p style="margin: 0; font-size: 14px; color: #666;">إدارة الأكاديمية</p>
-            <div style="border-top: 2px solid #333; width: 150px; margin: 20px auto 5px;"></div>
-            <p style="margin: 0; font-size: 12px; color: #999;">التوقيع والختم</p>
+          <!-- معلومات الأكاديمية -->
+          <div style="text-align: center; flex: 2;">
+            <p style="margin: 0; font-size: 12px; color: #666; font-weight: bold;">
+              ${settings.academyName || 'أكاديمية نجم بلوس'}
+            </p>
+            <p style="margin: 2px 0; font-size: 10px; color: #999;">
+              ${settings.academyAddress || 'العنوان'} • 📞 ${settings.academyPhone || 'رقم الهاتف'}
+            </p>
+          </div>
+
+          <!-- التوقيع والختم -->
+          <div style="text-align: center; flex: 1;">
+            <p style="margin: 0; font-size: 11px; color: #666; font-weight: bold;">إدارة الأكاديمية</p>
+            <div style="border-top: 2px solid #1976d2; width: 80px; margin: 8px auto 3px;"></div>
+            <p style="margin: 0; font-size: 9px; color: #999;">التوقيع والختم</p>
           </div>
         </div>
 
         <!-- الزخرفة السفلية -->
-        <div style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); width: 80%; height: 3px; background: linear-gradient(90deg, #1976d2, #42a5f5, #1976d2); border-radius: 2px;"></div>
-
-        <!-- زخارف جانبية -->
-        <div style="position: absolute; top: 50%; right: 10px; transform: translateY(-50%); width: 20px; height: 200px; background: linear-gradient(180deg, ${appreciationColor}40, transparent, ${appreciationColor}40); border-radius: 10px;"></div>
-        <div style="position: absolute; top: 50%; left: 10px; transform: translateY(-50%); width: 20px; height: 200px; background: linear-gradient(180deg, ${appreciationColor}40, transparent, ${appreciationColor}40); border-radius: 10px;"></div>
+        <div style="position: absolute; bottom: 5px; left: 50%; transform: translateX(-50%); width: 90%; height: 2px; background: linear-gradient(90deg, #1976d2, #42a5f5, #1976d2); border-radius: 1px;"></div>
       </div>
     `;
   };
