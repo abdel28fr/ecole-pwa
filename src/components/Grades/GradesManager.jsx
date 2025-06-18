@@ -43,10 +43,13 @@ import {
   Cancel as CancelIcon,
   Person as PersonIcon,
   Subject as SubjectIcon,
-  Assignment as AssignmentIcon
+  Assignment as AssignmentIcon,
+  Visibility as VisibilityIcon,
+  VisibilityOff as VisibilityOffIcon,
+  Settings as SettingsIcon
 } from '@mui/icons-material';
 
-import { gradesAPI, studentsAPI, subjectsAPI, classesAPI } from '../../data/storage';
+import { gradesAPI, studentsAPI, subjectsAPI, classesAPI, uiSettingsAPI } from '../../data/storage';
 
 const GradesManager = () => {
   const [grades, setGrades] = useState([]);
@@ -81,8 +84,14 @@ const GradesManager = () => {
   const [bulkExamDate, setBulkExamDate] = useState(new Date().toISOString().split('T')[0]);
   const [bulkNotes, setBulkNotes] = useState('');
 
+  // حالة إظهار/إخفاء عمود المعامل (من الإعدادات المشتركة)
+  const [showCoefficientColumn, setShowCoefficientColumn] = useState(true);
+
   useEffect(() => {
     loadData();
+    // تحميل إعدادات العرض
+    const uiSettings = uiSettingsAPI.get();
+    setShowCoefficientColumn(uiSettings.showCoefficientColumn);
   }, []);
 
   // useEffect لتحديث الفلترة عند تحميل البيانات
@@ -126,7 +135,7 @@ const GradesManager = () => {
   const loadData = () => {
     const gradesData = gradesAPI.getAll();
     const studentsData = studentsAPI.getAll();
-    const subjectsData = subjectsAPI.getAll();
+    const subjectsData = subjectsAPI.getAll(); // الآن يُرجع المواد مرتبة تلقائياً
     const classesData = classesAPI.getAll();
 
     setGrades(gradesData);
@@ -441,6 +450,14 @@ const GradesManager = () => {
     return subjects;
   };
 
+  // دالة تحديث إعدادات العرض
+  const handleToggleCoefficientColumn = () => {
+    const newValue = !showCoefficientColumn;
+    setShowCoefficientColumn(newValue);
+    // حفظ في الإعدادات المشتركة
+    uiSettingsAPI.update({ showCoefficientColumn: newValue });
+  };
+
   return (
     <Box>
       {/* العنوان والأزرار */}
@@ -625,6 +642,17 @@ const GradesManager = () => {
                     إعادة تعيين
                   </Button>
                 </Grid>
+                <Grid item xs={12} md={2}>
+                  <Button
+                    variant={showCoefficientColumn ? "contained" : "outlined"}
+                    onClick={handleToggleCoefficientColumn}
+                    fullWidth
+                    startIcon={showCoefficientColumn ? <VisibilityIcon /> : <VisibilityOffIcon />}
+                    color={showCoefficientColumn ? "primary" : "secondary"}
+                  >
+                    {showCoefficientColumn ? "إخفاء المعامل" : "إظهار المعامل"}
+                  </Button>
+                </Grid>
                 <Grid item xs={12} md={1}>
                   <Typography variant="body2" color="text.secondary" textAlign="center">
                     إجمالي: {filteredGrades.length} نقطة
@@ -776,9 +804,11 @@ const GradesManager = () => {
                           <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 'bold' }}>
                             {subject.name}
                           </Typography>
-                          <Typography variant="caption" color="text.secondary" sx={{ mb: 2, display: 'block' }}>
-                            معامل: {subject.coefficient}
-                          </Typography>
+                          {showCoefficientColumn && (
+                            <Typography variant="caption" color="text.secondary" sx={{ mb: 2, display: 'block' }}>
+                              معامل: {subject.coefficient}
+                            </Typography>
+                          )}
 
                           <Typography gutterBottom>
                             النقطة: {bulkGrades[subject.id] || 5}/10
@@ -981,12 +1011,14 @@ const GradesManager = () => {
                                 <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#1976d2' }}>
                                   {item.subject.name}
                                 </Typography>
-                                <Chip
-                                  label={`معامل ${item.subject.coefficient}`}
-                                  size="small"
-                                  variant="outlined"
-                                  color="primary"
-                                />
+                                {showCoefficientColumn && (
+                                  <Chip
+                                    label={`معامل ${item.subject.coefficient}`}
+                                    size="small"
+                                    variant="outlined"
+                                    color="primary"
+                                  />
+                                )}
                               </Box>
 
                               {/* أزرار سريعة للمادة */}
@@ -1304,7 +1336,7 @@ const GradesManager = () => {
                 >
                   {subjects.map((subject) => (
                     <MenuItem key={subject.id} value={subject.id}>
-                      {subject.name} (معامل {subject.coefficient})
+                      {subject.name}{showCoefficientColumn ? ` (معامل ${subject.coefficient})` : ''}
                     </MenuItem>
                   ))}
                 </Select>

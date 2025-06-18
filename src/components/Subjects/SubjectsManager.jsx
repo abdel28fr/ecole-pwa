@@ -28,7 +28,9 @@ import {
   Edit as EditIcon,
   Delete as DeleteIcon,
   Subject as SubjectIcon,
-  Grade as GradeIcon
+  Grade as GradeIcon,
+  DragIndicator as DragIcon,
+  SwapVert as ReorderIcon
 } from '@mui/icons-material';
 
 import { subjectsAPI, gradesAPI } from '../../data/storage';
@@ -44,14 +46,18 @@ const SubjectsManager = () => {
     coefficient: ''
   });
   const [errors, setErrors] = useState({});
+  const [draggedItem, setDraggedItem] = useState(null);
+  const [dragOverItem, setDragOverItem] = useState(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   useEffect(() => {
     loadData();
   }, []);
 
   const loadData = () => {
-    const subjectsData = subjectsAPI.getAll();
+    const subjectsData = subjectsAPI.getAll(); // الآن يُرجع المواد مرتبة تلقائياً
     const gradesData = gradesAPI.getAll();
+
     setSubjects(subjectsData);
     setGrades(gradesData);
   };
@@ -183,6 +189,65 @@ const SubjectsManager = () => {
     return colors[index];
   };
 
+  // دوال السحب والإفلات
+  const handleDragStart = (e, subject, index) => {
+    setDraggedItem({ subject, index });
+    setIsDragging(true);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/html', e.target.outerHTML);
+    e.target.style.opacity = '0.5';
+  };
+
+  const handleDragEnd = (e) => {
+    e.target.style.opacity = '1';
+    setDraggedItem(null);
+    setDragOverItem(null);
+    setIsDragging(false);
+  };
+
+  const handleDragOver = (e, index) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setDragOverItem(index);
+  };
+
+  const handleDragLeave = () => {
+    setDragOverItem(null);
+  };
+
+  const handleDrop = (e, dropIndex) => {
+    e.preventDefault();
+
+    if (!draggedItem || draggedItem.index === dropIndex) {
+      return;
+    }
+
+    const newSubjects = [...subjects];
+    const draggedSubject = newSubjects[draggedItem.index];
+
+    // إزالة العنصر من موقعه الأصلي
+    newSubjects.splice(draggedItem.index, 1);
+
+    // إدراج العنصر في الموقع الجديد
+    newSubjects.splice(dropIndex, 0, draggedSubject);
+
+    // تحديث ترتيب المواد مع إضافة خاصية order
+    const updatedSubjects = newSubjects.map((subject, index) => ({
+      ...subject,
+      order: index
+    }));
+
+    setSubjects(updatedSubjects);
+
+    // حفظ الترتيب الجديد
+    updatedSubjects.forEach(subject => {
+      subjectsAPI.update(subject.id, subject);
+    });
+
+    setDraggedItem(null);
+    setDragOverItem(null);
+  };
+
   return (
     <Box>
       {/* العنوان والأزرار */}
@@ -256,10 +321,20 @@ const SubjectsManager = () => {
       </Grid>
 
       {/* جدول المواد */}
+      <Card sx={{ mb: 2, p: 2, bgcolor: 'primary.main', color: 'white' }}>
+        <Box display="flex" alignItems="center" gap={2}>
+          <ReorderIcon />
+          <Typography variant="h6">
+            يمكنك ترتيب المواد عن طريق السحب والإفلات
+          </Typography>
+        </Box>
+      </Card>
+
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
             <TableRow>
+              <TableCell width="60px">ترتيب</TableCell>
               <TableCell>الرمز</TableCell>
               <TableCell>اسم المادة</TableCell>
               <TableCell>المعامل</TableCell>
@@ -270,13 +345,50 @@ const SubjectsManager = () => {
           </TableHead>
           <TableBody>
             {subjects.length > 0 ? (
-              subjects.map((subject) => {
+              subjects.map((subject, index) => {
                 const stats = getSubjectStats(subject.id);
+                const isBeingDragged = draggedItem?.index === index;
+                const isDropTarget = dragOverItem === index;
+
                 return (
-                  <TableRow key={subject.id}>
+                  <TableRow
+                    key={subject.id}
+                    draggable
+                    onDragStart={(e) => handleDragStart(e, subject, index)}
+                    onDragEnd={handleDragEnd}
+                    onDragOver={(e) => handleDragOver(e, index)}
+                    onDragLeave={handleDragLeave}
+                    onDrop={(e) => handleDrop(e, index)}
+                    sx={{
+                      cursor: 'move',
+                      opacity: isBeingDragged ? 0.5 : 1,
+                      backgroundColor: isDropTarget ? 'action.hover' : 'inherit',
+                      border: isDropTarget ? '2px dashed #1976d2' : 'none',
+                      transition: 'all 0.2s ease',
+                      '&:hover': {
+                        backgroundColor: isDragging ? 'action.hover' : 'action.selected',
+                        transform: isDragging ? 'none' : 'scale(1.01)',
+                        boxShadow: isDragging ? 'none' : '0 4px 8px rgba(0,0,0,0.1)'
+                      }
+                    }}
+                  >
                     <TableCell>
-                      <Avatar 
-                        sx={{ 
+                      <Box display="flex" alignItems="center" gap={1}>
+                        <DragIcon
+                          sx={{
+                            color: 'text.secondary',
+                            cursor: 'grab',
+                            '&:active': { cursor: 'grabbing' }
+                          }}
+                        />
+                        <Typography variant="body2" color="text.secondary">
+                          #{index + 1}
+                        </Typography>
+                      </Box>
+                    </TableCell>
+                    <TableCell>
+                      <Avatar
+                        sx={{
                           bgcolor: getSubjectIcon(subject.code),
                           width: 40,
                           height: 40,
@@ -333,7 +445,7 @@ const SubjectsManager = () => {
               })
             ) : (
               <TableRow>
-                <TableCell colSpan={6} align="center">
+                <TableCell colSpan={7} align="center">
                   <Alert severity="info">
                     لا توجد مواد دراسية مُنشأة بعد. ابدأ بإضافة مادة جديدة.
                   </Alert>

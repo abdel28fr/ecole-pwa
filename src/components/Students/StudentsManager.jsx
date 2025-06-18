@@ -468,8 +468,7 @@ const StudentsManager = () => {
             </Grid>
             <Grid item xs={12} md={6}>
               <FormControl fullWidth error={!!errors.classId}>
-                
-                <InputLabel style={{ whiteSpace: 'nowrap' }}>القسم</InputLabel>
+                <InputLabel>القسم</InputLabel>
                 <Select
                   value={formData.classId}
                   onChange={(e) => setFormData({ ...formData, classId: parseInt(e.target.value) })}

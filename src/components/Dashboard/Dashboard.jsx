@@ -210,7 +210,7 @@ const Dashboard = ({ onNavigate }) => {
   const loadDashboardData = () => {
     const students = studentsAPI.getAll();
     const classes = classesAPI.getAll();
-    const subjects = subjectsAPI.getAll();
+    const subjects = subjectsAPI.getAll(); // الآن يُرجع المواد مرتبة تلقائياً
     const grades = gradesAPI.getAll();
     const payments = paymentsAPI.getAll();
     const appSettings = settingsAPI.get();

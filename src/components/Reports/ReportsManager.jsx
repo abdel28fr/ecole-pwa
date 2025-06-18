@@ -27,7 +27,7 @@ import {
   EmojiEvents as CertificateIcon
 } from '@mui/icons-material';
 
-import { studentsAPI, subjectsAPI, classesAPI, gradesAPI, settingsAPI } from '../../data/storage';
+import { studentsAPI, subjectsAPI, classesAPI, gradesAPI, settingsAPI, uiSettingsAPI } from '../../data/storage';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import './ReportStyles.css';
@@ -41,18 +41,22 @@ const ReportsManager = () => {
   const [selectedClass, setSelectedClass] = useState('');
   const [selectedStudent, setSelectedStudent] = useState('');
   const [reportData, setReportData] = useState(null);
+  const [showCoefficientColumn, setShowCoefficientColumn] = useState(true);
 
   useEffect(() => {
     loadData();
+    // تحميل إعدادات العرض
+    const uiSettings = uiSettingsAPI.get();
+    setShowCoefficientColumn(uiSettings.showCoefficientColumn);
   }, []);
 
   const loadData = () => {
     const studentsData = studentsAPI.getAll();
-    const subjectsData = subjectsAPI.getAll();
+    const subjectsData = subjectsAPI.getAll(); // الآن يُرجع المواد مرتبة تلقائياً
     const classesData = classesAPI.getAll();
     const gradesData = gradesAPI.getAll();
     const settingsData = settingsAPI.get();
-    
+
     setStudents(studentsData);
     setSubjects(subjectsData);
     setClasses(classesData);
@@ -383,8 +387,8 @@ const ReportsManager = () => {
           <tr style="background-color: #1976d2; color: white;">
             <th style="border: 1px solid #ddd; padding: 10px; text-align: center;">المادة</th>
             <th style="border: 1px solid #ddd; padding: 10px; text-align: center;">المعدل</th>
-            <th style="border: 1px solid #ddd; padding: 10px; text-align: center;">المعامل</th>
-            <th style="border: 1px solid #ddd; padding: 10px; text-align: center;">النقطة المعاملة</th>
+            ${showCoefficientColumn ? '<th style="border: 1px solid #ddd; padding: 10px; text-align: center;">المعامل</th>' : ''}
+            ${showCoefficientColumn ? '<th style="border: 1px solid #ddd; padding: 10px; text-align: center;">النقطة المعاملة</th>' : ''}
           </tr>
         </thead>
         <tbody>
@@ -397,10 +401,8 @@ const ReportsManager = () => {
                   <td style="border: 1px solid #ddd; padding: 8px; text-align: center; color: ${scoreColor}; font-weight: bold;">
                     ${report.average}/10
                   </td>
-                  <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">${report.subject.coefficient}</td>
-                  <td style="border: 1px solid #ddd; padding: 8px; text-align: center; font-weight: bold;">
-                    ${(report.average * report.subject.coefficient).toFixed(2)}
-                  </td>
+                  ${showCoefficientColumn ? `<td style="border: 1px solid #ddd; padding: 8px; text-align: center;">${report.subject.coefficient}</td>` : ''}
+                  ${showCoefficientColumn ? `<td style="border: 1px solid #ddd; padding: 8px; text-align: center; font-weight: bold;">${(report.average * report.subject.coefficient).toFixed(2)}</td>` : ''}
                 </tr>
               `;
             }
@@ -1226,8 +1228,8 @@ const ReportsManager = () => {
                         <TableCell>المادة</TableCell>
                         <TableCell>عدد النقاط</TableCell>
                         <TableCell>المعدل</TableCell>
-                        <TableCell>المعامل</TableCell>
-                        <TableCell>النقطة المعاملة</TableCell>
+                        {showCoefficientColumn && <TableCell>المعامل</TableCell>}
+                        {showCoefficientColumn && <TableCell>النقطة المعاملة</TableCell>}
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -1242,10 +1244,12 @@ const ReportsManager = () => {
                               size="small"
                             />
                           </TableCell>
-                          <TableCell>{report.subject.coefficient}</TableCell>
-                          <TableCell>
-                            {(report.average * report.subject.coefficient).toFixed(2)}
-                          </TableCell>
+                          {showCoefficientColumn && <TableCell>{report.subject.coefficient}</TableCell>}
+                          {showCoefficientColumn && (
+                            <TableCell>
+                              {(report.average * report.subject.coefficient).toFixed(2)}
+                            </TableCell>
+                          )}
                         </TableRow>
                       ))}
                     </TableBody>

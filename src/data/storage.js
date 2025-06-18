@@ -193,16 +193,32 @@ export const classesAPI = {
   }
 };
 
+// دالة مساعدة لترتيب المواد
+const sortSubjects = (subjects) => {
+  return subjects.sort((a, b) => {
+    if (a.order !== undefined && b.order !== undefined) {
+      return a.order - b.order;
+    }
+    return new Date(a.createdAt || 0) - new Date(b.createdAt || 0);
+  });
+};
+
 // وظائف إدارة المواد
 export const subjectsAPI = {
-  // الحصول على جميع المواد
+  // الحصول على جميع المواد مرتبة
   getAll: () => {
+    const subjects = storage.load(STORAGE_KEYS.SUBJECTS, DEFAULT_DATA.subjects);
+    return sortSubjects(subjects);
+  },
+
+  // الحصول على جميع المواد بدون ترتيب (للاستخدام الداخلي)
+  getAllRaw: () => {
     return storage.load(STORAGE_KEYS.SUBJECTS, DEFAULT_DATA.subjects);
   },
 
   // إضافة مادة جديدة
   add: (subject) => {
-    const subjects = subjectsAPI.getAll();
+    const subjects = subjectsAPI.getAllRaw();
     const newSubject = {
       ...subject,
       id: Date.now(),
@@ -215,7 +231,7 @@ export const subjectsAPI = {
 
   // تحديث مادة
   update: (id, updatedSubject) => {
-    const subjects = subjectsAPI.getAll();
+    const subjects = subjectsAPI.getAllRaw();
     const index = subjects.findIndex(s => s.id === id);
     if (index !== -1) {
       subjects[index] = { ...subjects[index], ...updatedSubject };
@@ -227,7 +243,7 @@ export const subjectsAPI = {
 
   // حذف مادة
   delete: (id) => {
-    const subjects = subjectsAPI.getAll();
+    const subjects = subjectsAPI.getAllRaw();
     const filteredSubjects = subjects.filter(s => s.id !== id);
     storage.save(STORAGE_KEYS.SUBJECTS, filteredSubjects);
     return true;
@@ -235,7 +251,7 @@ export const subjectsAPI = {
 
   // البحث عن مادة
   findById: (id) => {
-    const subjects = subjectsAPI.getAll();
+    const subjects = subjectsAPI.getAllRaw();
     return subjects.find(s => s.id === id);
   }
 };
@@ -295,7 +311,7 @@ export const gradesAPI = {
   // حساب المعدل العام لتلميذ
   calculateAverage: (studentId) => {
     const grades = gradesAPI.getByStudent(studentId);
-    const subjects = subjectsAPI.getAll();
+    const subjects = subjectsAPI.getAllRaw(); // استخدام getAllRaw للحساب
     
     if (grades.length === 0) return 0;
 
@@ -423,6 +439,40 @@ export const settingsAPI = {
     const updatedSettings = { ...currentSettings, ...newSettings };
     storage.save(STORAGE_KEYS.SETTINGS, updatedSettings);
     return updatedSettings;
+  }
+};
+
+// وظائف إدارة إعدادات العرض (UI Settings)
+export const uiSettingsAPI = {
+  // الحصول على إعدادات العرض
+  get: () => {
+    const defaultUISettings = {
+      showCoefficientColumn: true, // إظهار عمود المعامل افتراضياً
+      showDateColumn: true,
+      showExamTypeColumn: true,
+      showNotesColumn: true
+    };
+    return storage.load('uiSettings', defaultUISettings);
+  },
+
+  // تحديث إعدادات العرض
+  update: (newSettings) => {
+    const currentSettings = uiSettingsAPI.get();
+    const updatedSettings = { ...currentSettings, ...newSettings };
+    storage.save('uiSettings', updatedSettings);
+    return updatedSettings;
+  },
+
+  // إعادة تعيين إعدادات العرض
+  reset: () => {
+    const defaultUISettings = {
+      showCoefficientColumn: true,
+      showDateColumn: true,
+      showExamTypeColumn: true,
+      showNotesColumn: true
+    };
+    storage.save('uiSettings', defaultUISettings);
+    return defaultUISettings;
   }
 };
 
