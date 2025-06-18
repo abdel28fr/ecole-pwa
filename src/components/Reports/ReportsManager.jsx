@@ -961,9 +961,6 @@ const ReportsManager = () => {
               ${settings.academyName || 'أكاديمية نجم بلوس'}
             </h1>
             <p style="color: #666; margin: 5px 0; font-size: 12px; font-weight: 500;">للتعليم والتكوين</p>
-            <h2 style="color: #1976d2; margin: 10px 0; font-size: 20px; font-weight: bold;">
-              🏆 شهادة نجاح 🏆
-            </h2>
           </div>
 
           <!-- صورة التلميذ في الجهة اليسرى -->
