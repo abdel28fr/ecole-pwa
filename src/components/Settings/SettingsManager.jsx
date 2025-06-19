@@ -13,7 +13,9 @@ import {
   Divider,
   Alert,
   Paper,
-  IconButton
+  IconButton,
+  Tabs,
+  Tab
 } from '@mui/material';
 import {
   Settings as SettingsIcon,
@@ -23,12 +25,17 @@ import {
   Restore as RestoreIcon,
   Brightness4 as DarkModeIcon,
   Brightness7 as LightModeIcon,
-  School as SchoolIcon
+  School as SchoolIcon,
+  Backup as BackupIcon,
+  Info as InfoIcon
 } from '@mui/icons-material';
 
 import { settingsAPI } from '../../data/storage';
+import BackupManager from '../Backup/BackupManager';
+import AboutApp from '../About/AboutApp';
 
 const SettingsManager = ({ darkMode, setDarkMode }) => {
+  const [currentTab, setCurrentTab] = useState(0);
   const [settings, setSettings] = useState({
     academyName: '',
     academyAddress: '',
@@ -40,6 +47,25 @@ const SettingsManager = ({ darkMode, setDarkMode }) => {
   const [originalSettings, setOriginalSettings] = useState({});
   const [hasChanges, setHasChanges] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+
+  // مكونة TabPanel
+  function TabPanel({ children, value, index, ...other }) {
+    return (
+      <div
+        role="tabpanel"
+        hidden={value !== index}
+        id={`settings-tabpanel-${index}`}
+        aria-labelledby={`settings-tab-${index}`}
+        {...other}
+      >
+        {value === index && (
+          <Box sx={{ py: 3 }}>
+            {children}
+          </Box>
+        )}
+      </div>
+    );
+  }
 
   useEffect(() => {
     loadSettings();
@@ -129,6 +155,35 @@ const SettingsManager = ({ darkMode, setDarkMode }) => {
           تم حفظ الإعدادات بنجاح!
         </Alert>
       )}
+
+      {/* التبويبات */}
+      <Paper sx={{ mb: 3 }}>
+        <Tabs
+          value={currentTab}
+          onChange={(e, newValue) => setCurrentTab(newValue)}
+          variant="fullWidth"
+          sx={{ borderBottom: 1, borderColor: 'divider' }}
+        >
+          <Tab
+            label="الإعدادات العامة"
+            icon={<SettingsIcon />}
+            iconPosition="start"
+          />
+          <Tab
+            label="النسخ الاحتياطي"
+            icon={<BackupIcon />}
+            iconPosition="start"
+          />
+          <Tab
+            label="حول البرنامج"
+            icon={<InfoIcon />}
+            iconPosition="start"
+          />
+        </Tabs>
+      </Paper>
+
+      {/* محتوى التبويبات */}
+      <TabPanel value={currentTab} index={0}>
 
       <Grid container spacing={3}>
         {/* إعدادات المظهر */}
@@ -320,6 +375,17 @@ const SettingsManager = ({ darkMode, setDarkMode }) => {
           </Paper>
         </Grid>
       </Grid>
+      </TabPanel>
+
+      {/* تبويب النسخ الاحتياطي */}
+      <TabPanel value={currentTab} index={1}>
+        <BackupManager />
+      </TabPanel>
+
+      {/* تبويب حول البرنامج */}
+      <TabPanel value={currentTab} index={2}>
+        <AboutApp />
+      </TabPanel>
     </Box>
   );
 };
